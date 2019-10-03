@@ -58,4 +58,37 @@
 **示例问题**您正在处理某些新手机的联系人列表。 手机的所有者会在各种情况下更新并查询此列表。 目前，您已分配了设计一个功能的任务，该功能使用此联系人列表并确定其是否包含名称“ Flatt”。
 
 喘口气。 运行程序。 标头是函数的“虚拟”定义； 你有一些例子； 他们已经变成测试； 最重要的是，其中一些实际上成功了。 他们因错误的原因而成功，但成功了。 如果现在一切正常，请继续阅读。
+第四步是设计一个与数据定义匹配的功能模板。 由于字符串列表的数据定义包含两个子句，因此函数的主体必须是带有两个子句的cond表达式。 这两个条件确定了要接收的函数是两种列表中的哪一种：
+
+```racket
+; A ConsOrEmpty is one of: 
+; – '()
+; – (make-pair Any ConsOrEmpty)
+; interpretation ConsOrEmpty is the class of all lists
+
+; List-of-name -> Boolean
+; determines whether "Flatt" is on a-list-of-names
+;(define (contains-flatt? a-list-of-names)
+;  #false)
+
+(check-expect (contains-flatt? '()) #false)
+(check-expect (contains-flatt? (cons "Find" '()))
+                               #false)
+(check-expect (contains-flatt? (cons "Flatt" '()))
+                               #true)  
+
+(check-expect
+  (contains-flatt?
+    (cons "A" (cons "Flatt" (cons "C" '()))))
+  #true)
+
+(define (contains-flatt? alon)
+  (cond
+    [(empty? alon) #false]
+    [(cons? alon)
+     (or (string=? (first alon) "Flatt")
+         (contains-flatt? (rest alon)))]))
+```
+
+然后，图47显示了完整的定义。 总体而言，它与本书第一章中的定义并没有太大不同。 它由一个签名，一个目的陈述，两个示例和一个定义组成。 此函数定义与您之前所见的唯一不同之处是自引用，即对contains-flatt的引用？ 在定义的主体中。 再说一次，数据定义也是自引用的，因此从某种意义上说，函数中的自引用应该不会太令人惊讶。
 
