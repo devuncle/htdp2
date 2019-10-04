@@ -130,9 +130,83 @@
 
 ### 9.2 非空列表
 
+如果现在运行此功能的测试，您将看到信仰的飞跃是合理的。 的确，由于超出本书范围的原因，这种飞跃总是合理的，这就是为什么它是设计秘诀的内在部分。
+
+### 9.3 自然数
+
+在计算机科学中，这些数字被称为自然数。 与常规数字不同，自然数带有数据定义：
+
+```racket
+; An N is one of:
+; – 0
+; – (add1 N)
+; interpretation represents the counting numbers
 
 
+; N String -> List-of-strings 
+; creates a list of n copies of s
+ 
+(check-expect (copier 0 "hello") '())
+(check-expect (copier 2 "hello")
+              (cons "hello" (cons "hello" '())))
+ 
+(define (copier n s)
+  (cond
+    [(zero? n) '()]
+    [(positive? n) (cons s (copier (sub1 n) s))]))
 
+```
+
+### 9.4 俄罗斯套娃
+
+### 9.5 列表和世界
+
+通常，使用列表和自引用数据定义，与使用有限数据相比，您可以设计和运行更多有趣的世界程序。 试想一下，您现在可以通过逐项设置和结构创建一个太空侵略者程序的版本，该版本允许玩家从坦克中发射任意数量的射击。 让我们从这个问题的简单化版本开始：
+**示例问题**设计一个模拟射击的世界程序。 每次“玩家”点击空格键时，程序都会在画布底部添加一个镜头。 这些镜头以每刻度一像素的速度垂直上升。
+
+设计世界程序时，首先需要将信息分解为不断变化的世界状态的常量和元素。 对于前者，我们介绍了物理和图形常数。 对于后者，我们需要为世界各州开发数据表示。 尽管样本问题在细节上相对模糊，但显然是假定场景为矩形，且镜头沿垂直线绘制。
+
+```racket
+(require 2htdp/universe)
+(require 2htdp/image)
+
+(define HEIGHT 80) ; distances in terms of pixels 
+(define WIDTH 100)
+(define XSHOTS (/ WIDTH 2))
+ 
+; graphical constants 
+(define BACKGROUND (empty-scene WIDTH HEIGHT))
+(define SHOT (triangle 3 "solid" "red"))
+
+
+; ShotWorld -> ShotWorld 
+(define (main w0)
+  (big-bang w0
+    [on-tick tock]
+    [on-key keyh]
+    [to-draw to-image]))
+ 
+; ShotWorld -> ShotWorld 
+; moves each shot up by one pixel 
+(define (tock w)
+  (cond
+    [(empty? w) '()]
+    [else (cons (sub1 (first w)) (tock (rest w)))]))
+ 
+; ShotWorld KeyEvent -> ShotWorld 
+; adds a shot to the world if the space bar is hit 
+(define (keyh w ke)
+  (if (key=? ke " ") (cons HEIGHT w) w))
+ 
+; ShotWorld -> Image 
+; adds each shot y on w at (XSHOTS,y} to BACKGROUND
+(define (to-image w)
+  (cond
+    [(empty? w) BACKGROUND]
+    [else (place-image SHOT XSHOTS (first w)
+                       (to-image (rest w)))]))
+
+```
 
 
 
